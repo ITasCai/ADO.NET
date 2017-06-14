@@ -31,7 +31,7 @@ namespace Deam
          */
 
         private static readonly string strConn = ConfigurationManager.ConnectionStrings["strConn1"].ToString();
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             #region 从应用程序配置文件中读取连接字符串
             //string strConn = ConfigurationManager.ConnectionStrings["strConn1"].ToString();
@@ -274,20 +274,128 @@ namespace Deam
 
 
             #region 使用List泛型集合来存储数据
-
+            //用于从dr中获取的你数据
+            List<Stuudents> list = new List<Stuudents>();
             using (SqlConnection con = new SqlConnection(strConn))
             {
-                string strSql = @"SELECT s.StuId,
-                                         s.StuName,
-                                         s.StuAge,
-                                         dep.DeptName FROM dbo.Students s INNER JOIN dbo.Department dep 
-                                         ON s.DeptId = dep.DeptId ";
-
-                SqlCommand cmd = new SqlCommand(strSql, con);
+                string strsql = @"select StuId,
+                                         StuName,
+                                         StuSex,
+                                         StuAge,
+                                         DeptId from dbo.students ";
+                SqlCommand cmd = new SqlCommand(strsql, con);
                 con.Open();
-                //查询多行多列的结果，返回是sqlDateReader对象
                 SqlDataReader dr = cmd.ExecuteReader();
-                #endregion
+
+                if (dr.HasRows)
+                {
+                    while (dr.Read()) {
+                        Stuudents stu = new Stuudents();
+                        //第一种：通过dr[索引下标]
+                        //stu.StuId = dr[0].ToString();
+                        //stu.StNanme = dr[1].ToString();
+                        //stu.StuSex = Convert.ToBoolean(dr[2]);
+                        //stu.StuAge = Convert.ToInt32(dr[3]);
+                        //stu.DepId = Convert.ToInt32(dr[4]);
+
+                        //第二种：通过dr[“索引名称”]
+                        //stu.StuId = dr["StuId"].ToString();
+                        //stu.StuName = dr["StuName"].ToString();
+                        //stu.StuSex = Convert.ToBoolean(dr["StuSex"]);
+                        //stu.StuAge = Convert.ToInt32(dr["StuAge"]);
+                        //stu.DeptId = Convert.ToInt32(dr["DeptId"]);
+
+
+                        stu.StuId = dr.GetString(0);
+                        stu.StuName = dr.GetString(1);
+                        stu.StuSex = dr.GetBoolean(2);
+                        stu.StuAge = dr.GetInt32(3);
+                        stu.DeptId = dr.GetInt32(4);
+
+                        list.Add(stu);
+                    }
+                    dr.Close();
+                }
+                //循环遍历集合
+                foreach (Stuudents item in list)
+                {
+                    Console.WriteLine(item.StuId+"\t"+item.StuName+"\t"+(item.StuSex==true?"男":"女")+"\t"+item.StuAge+"\t"+item.DeptId);
+                }
+
             }
+
+            Console.ReadKey();
+            #endregion
+
+
+            #region  查询数据库学生信息
+
+            //using (SqlConnection con = new SqlConnection(strConn)) {
+            // string str = @"SELECT stu.StuId,stu.StuName,dep.DeptName,s.ExamScore,c.CourseName  FROM dbo.Students stu INNER JOIN dbo.Score s ON stu.StuId = s.StuId INNER JOIN dbo.Department dep ON stu.DeptId = dep.DeptId INNER JOIN  dbo.Course c  ON c.CourseId=s.CourseId";
+
+
+            //    // SqlCommand cmd = new SqlCommand(str,con);
+            //    SqlCommand cmd = new SqlCommand();
+            //    cmd.CommandText = str;  //设置命令文本
+            //    cmd.CommandType = CommandType.Text;  //设置命令类型
+            //    cmd.Connection = con;  //连接对象
+
+            //    con.Open();   //打开连接
+            //    SqlDataReader dr = cmd.ExecuteReader();
+
+            //    if (dr.HasRows)
+            //    {
+            //        while(dr.Read())
+            //        {
+            //            for (int i = 0; i < dr.FieldCount; i++)
+            //            {
+            //                Console.Write(dr[i].ToString()+"\t");
+            //            }
+            //            Console.WriteLine();
+            //        }
+            //    }
+
+            //    dr.Close();
+            //}
+
+            //Console.ReadKey();
+            #endregion
+
+
+            #region 存储过程,无参
+            //using (SqlConnection con = new SqlConnection(strConn))
+            //{
+            //    //string str = @"SELECT stu.StuId,stu.StuName,dep.DeptName,s.ExamScore,c.CourseName  FROM dbo.Students stu INNER JOIN dbo.Score s ON stu.StuId = s.StuId INNER JOIN dbo.Department dep ON stu.DeptId = dep.DeptId INNER JOIN  dbo.Course c  ON c.CourseId=s.CourseId";
+
+
+            //    string str = "EXEC dbo.pro_stu";
+
+            //    // SqlCommand cmd = new SqlCommand(str,con);
+            //    SqlCommand cmd = new SqlCommand();
+            //    cmd.CommandText = str;  //设置命令文本
+            //    cmd.CommandType = CommandType.Text;  //设置命令类型
+            //    cmd.Connection = con;  //连接对象
+
+            //    con.Open();   //打开连接
+            //    SqlDataReader dr = cmd.ExecuteReader();
+
+            //    if (dr.HasRows)
+            //    {
+            //        while (dr.Read())
+            //        {
+            //            for (int i = 0; i < dr.FieldCount; i++)
+            //            {
+            //                Console.Write(dr[i].ToString() + "\t");
+            //            }
+            //            Console.WriteLine();
+            //        }
+            //    }
+
+            //    dr.Close();
+            //}
+
+            //Console.ReadKey();
+            #endregion
+        }
     }
 }
